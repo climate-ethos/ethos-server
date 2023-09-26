@@ -29,7 +29,7 @@ wss.on('connection', (ws) => {
 });
 
 // Listen for terminal input
-process.on('SIGSEND', () => {
+process.on('SIGUSR1', () => {
   clients.forEach(client => client.send('displaySurvey'));
   console.log('Sent displaySurvey to all connected clients.');
 });

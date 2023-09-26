@@ -1,6 +1,10 @@
 # ethos-server-websocket
 
-## Installation & Running
+## Sending surveys to clients
+
+Run the command `pm2 sendSignal SIGUSR1 ethos-server-websocket` to prompt the clients to display heat survey
+
+## Installation & running
 
 Requirements: _npm and pm2 to be installed_
 
@@ -10,7 +14,7 @@ Requirements: _npm and pm2 to be installed_
 4. Run `pm2 startup` and configure pm2 to launch on startup
 5. Configure NGINX (if required)
 
-## NGINX Config
+## NGINX config
 
 ```nginx
 location /ws/ {
