@@ -29,14 +29,9 @@ wss.on('connection', (ws) => {
 });
 
 // Listen for terminal input
-process.stdin.on('data', (data) => {
-  const command = data.toString().trim();
-
-  // If the 'send' command is entered, send a 'displaySurvey' message to all clients
-  if (command === 'send') {
-    clients.forEach(client => client.send('displaySurvey'));
-    console.log('Sent displaySurvey to all connected clients.');
-  }
+process.on('SIGSEND', () => {
+  clients.forEach(client => client.send('displaySurvey'));
+  console.log('Sent displaySurvey to all connected clients.');
 });
 
 // Start the server on port 8080

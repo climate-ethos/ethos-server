@@ -8,6 +8,7 @@ Requirements: _npm and pm2 to be installed_
 2. Run `pm2 start pm2.config.js` to start server running with pm2
 3. Run `pm2 save` to save pm2 configuration
 4. Run `pm2 startup` and configure pm2 to launch on startup
+5. Configure NGINX (if required)
 
 ## NGINX Config
 
