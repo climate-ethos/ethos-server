@@ -1,40 +1,64 @@
-const fs = require('fs');
+const express = require('express');
 const https = require('https');
-const WebSocket = require('ws');
-require('dotenv').config();
+const fs = require('fs');
+const auth = require('basic-auth');
+const schedule = require('node-schedule');
 
+// Read the SSL certificate and private key
 const domainName = process.env.DOMAIN_NAME;
+const privateKey = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/privkey.pem`);
+const certificate = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/fullchain.pem`);
+const credentials = { key: privateKey, cert: certificate };
 
-// Load the Certbot SSL certificate and private key
-const server = https.createServer({
-  cert: fs.readFileSync(`/etc/letsencrypt/live/${domainName}/fullchain.pem`),
-  key: fs.readFileSync(`/etc/letsencrypt/live/${domainName}/privkey.pem`)
+const app = express();
+app.use(express.json());
+
+/**
+ * Main variable to control whether to show BOM survey
+ */
+let displaySurvey = false;
+
+/**
+ * Basic Authentication middleware fucntion
+ */
+const authMiddleware = (req, res, next) => {
+  const user = auth(req);
+  if (!user || user.name !== process.env.USERNAME || user.pass !== process.env.PASSWORD) {
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    res.status(401).send('Authentication required.');
+    return;
+  }
+  next();
+};
+
+/**
+ * Endpoint for getting the current status of whether BOM survey should be displayed
+ */
+app.get('/displaySurvey', (req, res) => {
+  res.json({ displaySurvey });
 });
 
-// Create websocket server
-const wss = new WebSocket.Server({ server });
-
-// Store all connected clients
-const clients = [];
-
-wss.on('connection', (ws) => {
-  clients.push(ws);
-
-  ws.on('close', () => {
-    const index = clients.indexOf(ws);
-    if (index > -1) {
-      clients.splice(index, 1);
-    }
-  });
+/**
+ * Endpoint for setting current status of whether BOM survey should be displayed
+ */
+app.post('/displaySurvey', authMiddleware, (req, res) => {
+  const { newValue } = req.body;
+  if (typeof newValue !== 'boolean') {
+    return res.status(400).send('New value must be a boolean.');
+  }
+  displaySurvey = newValue;
+  res.send(`displaySurvey updated to ${displaySurvey}`);
 });
 
-// Listen for terminal input
-process.on('SIGUSR1', () => {
-  clients.forEach(client => client.send('displaySurvey'));
-  console.log('Sent displaySurvey to all connected clients.');
+// Schedule to reset displaySurvey every day at 6pm
+schedule.scheduleJob('0 18 * * *', function(){
+  console.log('Resetting displaySurvey to false');
+  displaySurvey = false;
 });
 
-// Start the server on port 8080
-server.listen(8080, () => {
-  console.log('Server is running on port 8080');
+// Create HTTPS server
+const httpsServer = https.createServer(credentials, app);
+const PORT = 8080;
+httpsServer.listen(PORT, () => {
+  console.log(`HTTPS Server running on port ${PORT}`);
 });
