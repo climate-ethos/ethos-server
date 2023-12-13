@@ -3,6 +3,7 @@ const express = require('express');
 const https = require('https');
 const fs = require('fs');
 const auth = require('basic-auth');
+const cors = require('cors');
 const schedule = require('node-schedule');
 
 // Read the SSL certificate and private key
@@ -13,6 +14,9 @@ const credentials = { key: privateKey, cert: certificate };
 
 const app = express();
 app.use(express.json());
+
+// Enable CORS for all routes
+app.use(cors());
 
 /**
  * Main variable to control whether to show BOM survey
