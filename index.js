@@ -56,7 +56,7 @@ app.post('/displaySurvey', authMiddleware, (req, res) => {
 });
 
 // Schedule to reset displaySurvey every day at 6pm
-schedule.scheduleJob('0 18 * * *', function(){
+schedule.scheduleJob('0 19 * * *', function(){
   console.log('Resetting displaySurvey to false');
   displaySurvey = false;
 });
