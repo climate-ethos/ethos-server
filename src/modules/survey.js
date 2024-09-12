@@ -30,4 +30,4 @@ const scheduleResetJob = () => {
   });
 };
 
-module.exports = { surveyRoutes: router, scheduleResetJob };
+module.exports = { router, scheduleResetJob };

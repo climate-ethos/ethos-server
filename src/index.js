@@ -4,7 +4,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const cors = require('cors');
-const { surveyRoutes, scheduleResetJob } = require('./modules/survey');
+const { router: surveyRoutes, scheduleResetJob } = require('./modules/survey');
 const notificationRoutes = require('./modules/notifications');
 
 const isDev = process.env.NODE_ENV === 'development';
