@@ -21,10 +21,13 @@ router.post('/displaySurvey', authMiddleware, (req, res) => {
   res.send(`displaySurvey updated to ${displaySurvey}`);
 });
 
-// Schedule to reset displaySurvey every day at 6pm
-schedule.scheduleJob('0 19 * * *', function(){
-  console.log('Resetting displaySurvey to false');
-  displaySurvey = false;
-});
+// Function to schedule job to reset displaySurvey every day at 6pm
+const scheduleResetJob = () => {
+  console.log('Scheduling job to reset survey each day');
+  schedule.scheduleJob('0 19 * * *', function(){
+    console.log('Resetting displaySurvey to false');
+    displaySurvey = false;
+  });
+};
 
-module.exports = router;
+module.exports = { surveyRoutes: router, scheduleResetJob };

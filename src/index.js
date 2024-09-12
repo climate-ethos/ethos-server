@@ -4,7 +4,7 @@ const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const cors = require('cors');
-const surveyRoutes = require('./modules/survey');
+const { surveyRoutes, scheduleResetJob } = require('./modules/survey');
 const notificationRoutes = require('./modules/notifications');
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -26,6 +26,9 @@ app.use(cors());
 // Use survey routes
 app.use('/', surveyRoutes);
 app.use('/', notificationRoutes);
+
+// Schedule job to reset survey each day
+scheduleResetJob();
 
 const PORT = 8080;
 if (!isDev) {
