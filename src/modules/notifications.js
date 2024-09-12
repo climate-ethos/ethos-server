@@ -51,10 +51,12 @@ router.post('/sendPushNotification', authMiddleware, (req, res) => {
 
 router.post('/sendSMSNotification', authMiddleware, (req, res) => {
   const { userId, phoneNumber, roomName, severity } = req.body;
-  if (typeof userId !== 'string'
-    || typeof phoneNumber !== 'string'
-    || typeof roomName !== 'string'
-    || typeof severity !== 'number') {
+  if (
+    (typeof userId !== 'string' && typeof userId !== 'number') ||
+    typeof phoneNumber !== 'string' ||
+    typeof roomName !== 'string' ||
+    typeof severity !== 'string'
+  ) {
     return res.status(400).send('Incorrect body parameters');
   }
   const message = `User ${userId} has recorded a ${severity} severity alert in the ${roomName} area`
