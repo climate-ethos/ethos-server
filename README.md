@@ -2,7 +2,7 @@
 
 ## Sending surveys to clients
 
-Run the command `pm2 sendSignal SIGUSR1 ethos-server-websocket` to prompt the clients to display heat survey
+OUTDATED, USE HTTPS REQUEST INSTEAD: Run the command `pm2 sendSignal SIGUSR1 ethos-server-websocket` to prompt the clients to display heat survey
 
 ## Installation & running
 
