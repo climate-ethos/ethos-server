@@ -13,8 +13,10 @@ router.get('/displaySurvey', (req, res) => {
 router.post('/displaySurvey', authMiddleware, (req, res) => {
   const { newValue } = req.body;
   if (typeof newValue !== 'boolean') {
+    console.error('Unable to set displaySurvey value to:', newValue)
     return res.status(400).send('New value must be a boolean.');
   }
+  console.log('Setting displaySurvey value to:', newValue);
   displaySurvey = newValue;
   res.send(`displaySurvey updated to ${displaySurvey}`);
 });

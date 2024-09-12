@@ -1,15 +1,21 @@
 require('dotenv').config();
 const express = require('express');
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const cors = require('cors');
 const surveyRoutes = require('./modules/survey');
+const notificationRoutes = require('./modules/notifications');
 
-// Read the SSL certificate and private key
-const domainName = process.env.DOMAIN_NAME;
-const privateKey = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/privkey.pem`);
-const certificate = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/fullchain.pem`);
-const credentials = { key: privateKey, cert: certificate };
+const isDev = process.env.NODE_ENV === 'development';
+let credentials;
+if (!isDev) {
+  // Read the SSL certificate and private key
+  const domainName = process.env.DOMAIN_NAME;
+  const privateKey = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/privkey.pem`);
+  const certificate = fs.readFileSync(`/etc/letsencrypt/live/${domainName}/fullchain.pem`);
+  credentials = { key: privateKey, cert: certificate };
+}
 
 const app = express();
 app.use(express.json());
@@ -19,10 +25,19 @@ app.use(cors());
 
 // Use survey routes
 app.use('/', surveyRoutes);
+app.use('/', notificationRoutes);
 
-// Create HTTPS server
-const httpsServer = https.createServer(credentials, app);
 const PORT = 8080;
-httpsServer.listen(PORT, () => {
-  console.log(`HTTPS Server running on port ${PORT}`);
-});
+if (!isDev) {
+  // Create HTTPS server in production
+  const httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(PORT, () => {
+    console.log(`HTTPS Server running on port ${PORT}`);
+  });
+} else {
+  // Create HTTP server in development
+  const httpServer = http.createServer(app);
+  httpServer.listen(PORT, () => {
+    console.log(`HTTP Server running on port ${PORT}`);
+  });
+}
