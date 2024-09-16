@@ -14,10 +14,12 @@ const client = new twilio(accountSid, authToken);
 // Function to send Push Notification via Twilio Notify
 const sendPushNotification = async (identity, message) => {
   try {
-    const notification = await client.notify.services(notifyServiceSid).notifications.create({
-      identity: identity,
-      body: message,
-    });
+    const notification = await client.notify.v1.services(notifyServiceSid)
+      .notifications
+      .create({
+        identity: identity,
+        body: message,
+      });
     console.log('Push notification sent with SID:', notification.sid);
   } catch (error) {
     console.error('Error sending push notification:', error);
@@ -64,4 +66,8 @@ router.post('/sendSMSNotification', authMiddleware, (req, res) => {
   return res.send('Text message notification sent!');
 });
 
-module.exports = router;
+module.exports = {
+  router,
+  sendPushNotification,
+  sendSMS
+};
