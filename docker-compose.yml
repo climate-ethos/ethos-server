@@ -1,3 +1,5 @@
+version: '3'
+
 services:
   server:
     build:
@@ -10,16 +12,22 @@ services:
       - ./.env:/usr/app/.env  # Mount .env
     ports:
       - "8080:8080"
+    env_file:
+      - ./.env  # Load environment variables for the server
+
   couchdb:
-    # Couchdb version 3
     image: couchdb:3
     ports:
-      # Expose port for couchdb instance
       - "5984:5984"
     volumes:
-      # Mount local.ini config to couchdb instance
-      - ./couchdb_config:/opt/couchdb/etc/local.d
+      - ./couchdb/config:/opt/couchdb/etc/local.d  # Mount local.ini config
+      - ./couchdb/data:/opt/couchdb/data  # Persist data to local filesystem
     environment:
-      # Default username and password for now
-      COUCHDB_USER: admin
-      COUCHDB_PASSWORD: password
+      COUCHDB_USER: ${COUCHDB_ADMIN_USER}  # Use environment variable from .env
+      COUCHDB_PASSWORD: ${COUCHDB_ADMIN_PASSWORD}  # Use environment variable from .env
+      COUCHDB_SECRET: ${COUCHDB_SECRET}
+    env_file:
+      - ./.env  # Load environment variables for CouchDB
+
+volumes:
+  couchdb_data:  # Define the volume for CouchDB data

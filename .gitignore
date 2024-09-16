@@ -1,2 +1,5 @@
 */node_modules
 .env
+
+couchdb/data
+couchdb/config/docker.ini
