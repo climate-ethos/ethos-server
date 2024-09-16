@@ -6,6 +6,12 @@ OUTDATED, USE HTTPS REQUEST INSTEAD: Run the command `pm2 sendSignal SIGUSR1 eth
 
 ## Installation & running
 
+NEW
+
+1. Run `sh setup_docker.sh` to configure docker in rootless mode if on a fresh Ubuntu install
+2. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
+3. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
+
 Requirements: _npm and pm2 to be installed_
 
 1. Run `npm install` to install required dependencies
