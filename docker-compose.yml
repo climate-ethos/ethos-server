@@ -1,9 +1,11 @@
 services:
-  web:
-    build: .
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     command: npm run dev
     volumes:
-      - .:/usr/app/
+      - ./server:/usr/app
       - /usr/app/node_modules
     ports:
       - "8080:8080"
