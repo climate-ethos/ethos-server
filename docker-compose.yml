@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   server:
     restart: unless-stopped
     build:
@@ -31,5 +32,21 @@ services:
     env_file:
       - ./.env  # Load environment variables for CouchDB
 
-volumes:
-  couchdb_data:  # Define the volume for CouchDB data
+  nginx:
+    image: nginx:latest
+    profiles: [prod]
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+
+  certbot:
+    image: certbot/certbot:latest
+    profiles: [prod]
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
