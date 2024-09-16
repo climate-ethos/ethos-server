@@ -16,16 +16,14 @@ services:
       - ./.env  # Load environment variables for the server
 
   couchdb:
-    image: couchdb:3
+    build: ./couchdb # Use Dockerfile
     ports:
       - "5984:5984"
     volumes:
-      - ./couchdb/config:/opt/couchdb/etc/local.d  # Mount local.ini config
       - ./couchdb/data:/opt/couchdb/data  # Persist data to local filesystem
     environment:
       COUCHDB_USER: ${COUCHDB_ADMIN_USER}  # Use environment variable from .env
       COUCHDB_PASSWORD: ${COUCHDB_ADMIN_PASSWORD}  # Use environment variable from .env
-      COUCHDB_SECRET: ${COUCHDB_SECRET}
     env_file:
       - ./.env  # Load environment variables for CouchDB
 
