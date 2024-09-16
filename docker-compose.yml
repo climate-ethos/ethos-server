@@ -9,3 +9,16 @@ services:
       - /usr/app/node_modules
     ports:
       - "8080:8080"
+  couchdb:
+    # Couchdb version 3
+    image: couchdb:3
+    ports:
+      # Expose port for couchdb instance
+      - "5984:5984"
+    volumes:
+      # Mount local.ini config to couchdb instance
+      - ./couchdb_config:/opt/couchdb/etc/local.d
+    environment:
+      # Default username and password for now
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
