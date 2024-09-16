@@ -1,26 +1,44 @@
 #!/bin/bash
 
+# Load environment variables from .env file
+if [ -f .env ]; then
+  export $(cat .env | xargs)
+else
+  echo ".env file not found! Please create one with DOCKER_USER_PASSWORD."
+  exit 1
+fi
+
+# Function to check if a user exists
+user_exists() {
+  id "$1" &>/dev/null
+}
+
 # Ensure the script is not being run as root for rootless Docker
 if [ "$EUID" -eq 0 ]; then
-  echo "This script should not be run as root to enable rootless Docker."
+  echo "Running as root. Checking if 'docker' user exists..."
 
-  # Optionally, create a new non-root user for Docker setup
-  read -p "Do you want to create a new non-root user for Docker setup? [y/n]: " create_user
-  if [[ "$create_user" == "y" ]]; then
-    read -p "Enter new username: " username
-    adduser $username
-    usermod -aG sudo $username
-    echo "User $username created. Please log in as $username to run the script."
-    exit 1
+  # Check if 'docker' user exists, if not, create it
+  if ! user_exists "docker"; then
+    echo "Creating 'docker' user..."
+
+    # Create the user with the password read from .env file
+    encrypted_password=$(openssl passwd -1 "$DOCKER_USER_PASSWORD")
+    useradd -m -p "$encrypted_password" docker
+    usermod -aG sudo docker
+    echo "'docker' user created and added to sudo group."
   else
-    echo "Exiting script. Please run as a non-root user."
-    exit 1
+    echo "'docker' user already exists."
   fi
+
+  # Switch to 'docker' user and re-run the script
+  echo "Switching to 'docker' user..."
+  sudo -i -u docker bash -c "$(declare -f); exec bash $0"
+  exit 0
 fi
 
 # Install Docker using the convenience script
 curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
+sh get-docker.sh
 
 # Add the current user to the Docker group (if needed)
 sudo usermod -aG docker $USER
@@ -41,9 +59,6 @@ echo "export DOCKER_HOST=unix:///run/user/$UID/docker.sock" >> ~/.bashrc
 
 # Apply the changes
 source ~/.bashrc
-
-# Print instructions to enable rootless mode (in case of additional configuration)
-echo "Docker rootless mode installed. You may need to restart your session for changes to take effect."
 
 # Optionally, start Docker rootless service manually if not already running
 systemctl --user start docker
