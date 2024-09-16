@@ -2,10 +2,11 @@ version: '3'
 
 services:
   server:
+    restart: unless-stopped
     build:
       context: ./server
       dockerfile: Dockerfile
-    command: npm run dev
+    command: sh -c "npm run ${NODE_ENV:-prod}"  # Use NODE_ENV to control the mode
     volumes:
       - ./server:/usr/app
       - /usr/app/node_modules
@@ -14,8 +15,11 @@ services:
       - "8080:8080"
     env_file:
       - ./.env  # Load environment variables for the server
+    environment:
+      - NODE_ENV=${NODE_ENV:-prod}  # Default to 'prod' if NODE_ENV is not set
 
   couchdb:
+    restart: unless-stopped
     build: ./couchdb # Use Dockerfile
     ports:
       - "5984:5984"

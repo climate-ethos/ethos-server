@@ -4,4 +4,4 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
-docker compose up --build
+NODE_ENV=dev docker compose up --build
