@@ -2,3 +2,4 @@
 .env
 
 couchdb/data
+certbot
