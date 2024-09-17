@@ -12,6 +12,7 @@ services:
       - ./server:/usr/app
       - /usr/app/node_modules
       - ./.env:/usr/app/.env  # Mount .env
+      - ./certbot/conf/:/etc/letsencrypt/:ro # SSL certs for https
     ports:
       - "8080:8080"
     env_file:
