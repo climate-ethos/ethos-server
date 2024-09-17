@@ -1,33 +1,36 @@
-# ethos-server-websocket
+# ethos-server
+
+This repository stores the setup information needed to run the server for the Ethos project.
+
+## Endpoints
+
+The root path ('/') redirects to couchdb running on port 5984 while the path ('/server') redirects to the node instance running on port 8080.
 
 ## Sending surveys to clients
 
-OUTDATED, USE HTTPS REQUEST INSTEAD: Run the command `pm2 sendSignal SIGUSR1 ethos-server-websocket` to prompt the clients to display heat survey
+Surveys can be sent to clients by running `curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST http://example.org/server/displaySurvey` where user and password are the `USERNAME` and `PASSWORD` configured in `.env` and `example.org` is the domain name of the server
 
 ## Installation & running
 
-NEW
+### Prerequisites
 
-1. Run `sh setup_docker.sh` to configure docker in rootless mode if on a fresh Ubuntu install
-2. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
-3. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
+This repo requires a pre-existing installation of docker to be configured, preferably in rootless mode. To install docker:
 
-Requirements: _npm and pm2 to be installed_
+1. Run `curl -fsSL https://get.docker.com -o get-docker.sh` and then `sudo sh ./get-docker.sh`
+2. Install packages to configure rootless docker `sudo apt-get install -y dbus-user-session uidmap systemd-container`
+3. Add a new user to run docker with `adduser docker-user`
+4. Disable existing running docker instance `sudo systemctl disable --now docker.service docker.socket` and `sudo rm /var/run/docker.sock`
+5. Login with user created earlier using `sudo machinectl shell docker-user@`
+6. Setup daemon with `dockerd-rootless-setuptool.sh install`
+7. Start docker instance with `systemctl --user start docker.service`
+8. Enable starting docker on system startup with `sudo loginctl enable-linger docker-user`
 
-1. Run `npm install` to install required dependencies
-2. Run `pm2 start pm2.config.js` to start server running with pm2
-3. Run `pm2 save` to save pm2 configuration
-4. Run `pm2 startup` and configure pm2 to launch on startup
-5. Configure NGINX (if required)
+More information can be found [here](https://docs.docker.com/engine/security/rootless/)
 
-## NGINX config
+### Running the server
 
-```nginx
-location /ws/ {
-  proxy_pass http://localhost:8080;
-  proxy_http_version 1.1;
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "Upgrade";
-  proxy_set_header Host $host;
-}
-```
+1. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
+2. Configure `nginx/conf/nginx.conf` file with the correct domain name for your server
+3. Start nginx with `docker compose up -d nginx`. If you get errors you may need to comment out the 2nd half of `nginx.conf` until you setup certbot
+4. Setup certbot by running `docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
+5. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
