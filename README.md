@@ -77,7 +77,7 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 - **URL:** `/registerDevice`
 - **Method:** POST
-- **Description:** Registers a device for push notifications.
+- **Description:** Registers a device for push notifications. If device is undefined it will default to IOS device.
 - **Body:**
 
   ```json
