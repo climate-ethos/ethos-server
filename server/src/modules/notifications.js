@@ -15,6 +15,7 @@ const client = new twilio(accountSid, authToken);
  * Function to register push notification identity with Twilio
  * @param {string} identity The identity used to identify the user
  * @param {string} address The APN device token for IOS notifications
+ * @param {string} device The device type ('android' or 'ios' or undefined)
  */
 const registerDevice = async (identity, address, device) => {
   const binding = {
@@ -30,8 +31,10 @@ const registerDevice = async (identity, address, device) => {
       .bindings
       .create(binding);
     console.log('Successfully created binding:', twilioBinding);
+    return twilioBinding;
   } catch (error) {
     console.error('Error creating binding:', error);
+    throw error;
   }
 }
 
@@ -49,8 +52,10 @@ const sendPushNotification = async (identity, message) => {
         body: message,
       });
     console.log('Push notification sent with SID:', notification.sid);
+    return notification;
   } catch (error) {
     console.error('Error sending push notification:', error);
+    throw error;
   }
 };
 
@@ -68,33 +73,44 @@ const sendSMS = async (to, message) => {
       to: to,
     });
     console.log('SMS sent with SID:', sms.sid);
+    return sms;
   } catch (error) {
     console.error('Error sending SMS:', error);
+    throw error;
   }
 };
 
-router.post('/registerDevice', authMiddleware, (req, res) => {
+router.post('/registerDevice', authMiddleware, async (req, res) => {
   const { identity, address, device } = req.body;
   if (typeof identity !== 'string'
-    || typeof address !== 'string') {
+    || typeof address !== 'string'
+    || (device !== 'android' && device !== 'ios' && device !== undefined)) {
     return res.status(400).send('Incorrect body parameters');
   }
-  registerDevice(identity, address, device)
-  return res.send('Registered device!');
+  try {
+    await registerDevice(identity, address, device);
+    return res.send('Registered device!');
+  } catch (error) {
+    return res.status(500).send(`Error registering device: ${error.message}`);
+  }
 });
 
-router.post('/sendPushNotification', authMiddleware, (req, res) => {
+router.post('/sendPushNotification', authMiddleware, async (req, res) => {
   const { deviceToken, roomName } = req.body;
   if (typeof deviceToken !== 'string'
     || typeof roomName !== 'string') {
     return res.status(400).send('Incorrect body parameters');
   }
   const message = `There is a high severity heat alert in the ${roomName} area`
-  sendPushNotification(deviceToken, message)
-  return res.send('Push notification sent!');
+  try {
+    await sendPushNotification(deviceToken, message);
+    return res.send('Push notification sent!');
+  } catch (error) {
+    return res.status(500).send(`Error sending push notification: ${error.message}`);
+  }
 });
 
-router.post('/sendSMSNotification', authMiddleware, (req, res) => {
+router.post('/sendSMSNotification', authMiddleware, async (req, res) => {
   const { userId, phoneNumber, roomName, severity } = req.body;
   if (
     (typeof userId !== 'string' && typeof userId !== 'number') ||
@@ -105,8 +121,12 @@ router.post('/sendSMSNotification', authMiddleware, (req, res) => {
     return res.status(400).send('Incorrect body parameters');
   }
   const message = `User ${userId} has recorded a ${severity} severity alert in the ${roomName} area`
-  sendSMS(phoneNumber, message)
-  return res.send('Text message notification sent!');
+  try {
+    await sendSMS(phoneNumber, message);
+    return res.send('Text message notification sent!');
+  } catch (error) {
+    return res.status(500).send(`Error sending SMS notification: ${error.message}`);
+  }
 });
 
 module.exports = {
