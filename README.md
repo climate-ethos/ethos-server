@@ -2,7 +2,7 @@
 
 This repository stores the setup information needed to run the server for the Ethos project.
 
-## Endpoints
+## NGINX Endpoints
 
 The root path ('/') redirects to couchdb running on port 5984 while the path ('/server') redirects to the node instance running on port 8080.
 
@@ -34,3 +34,7 @@ More information can be found [here](https://docs.docker.com/engine/security/roo
 3. Start nginx with `docker compose up -d nginx`. If you get errors you may need to comment out the 2nd half of `nginx.conf` until you setup certbot
 4. Setup certbot by running `docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
 5. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
+
+## API Endpoints
+
+TODO

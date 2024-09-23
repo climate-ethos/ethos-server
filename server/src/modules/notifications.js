@@ -16,10 +16,13 @@ const client = new twilio(accountSid, authToken);
  * @param {string} identity The identity used to identify the user
  * @param {string} address The APN device token for IOS notifications
  */
-const registerDevice = async (identity, address) => {
+const registerDevice = async (identity, address, device) => {
   const binding = {
     identity: identity,
-    bindingType: 'apn',
+    // Default to IOS if no device is specified
+    // 'fcm' = firebase cloud messaging (android)
+    // 'apn' = apple push notification service (IOS)
+    bindingType: device === 'android' ? 'fcm' : 'apn',
     address: address
   }
   try {
@@ -71,12 +74,12 @@ const sendSMS = async (to, message) => {
 };
 
 router.post('/registerDevice', authMiddleware, (req, res) => {
-  const { identity, address } = req.body;
+  const { identity, address, device } = req.body;
   if (typeof identity !== 'string'
     || typeof address !== 'string') {
     return res.status(400).send('Incorrect body parameters');
   }
-  registerDevice(identity, address)
+  registerDevice(identity, address, device)
   return res.send('Registered device!');
 });
 
