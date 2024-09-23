@@ -92,17 +92,33 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 ### Push Notifications
 
-#### Send Push Notification [AUTH]
+#### Send Alert Push Notification [AUTH]
 
-- **URL:** `/sendPushNotification`
+- **URL:** `/sendAlertPushNotification`
 - **Method:** POST
-- **Description:** Sends a push notification to a registered device.
+- **Description:** Sends a heat alert push notification to a registered device.
 - **Body:**
 
   ```json
   {
     "identity": string,
     "roomName": string
+  }
+  ```
+
+- **Response:** String confirming the notification was sent.
+
+#### Send Survey Push Notification [AUTH]
+
+- **URL:** `/sendSurveyPushNotification`
+- **Method:** POST
+- **Description:** Sends a survey push notification to a registered device.
+- **Body:**
+
+  ```json
+  {
+    "identity": string,
+    "surveyType": "alert" | "bom" | "both"
   }
   ```
 

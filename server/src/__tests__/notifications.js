@@ -45,10 +45,10 @@ describe('Notification Router', () => {
     jest.clearAllMocks();
   });
 
-  describe('POST /sendPushNotification', () => {
+  describe('POST /sendAlertPushNotification', () => {
     it('should send a push notification and return 200', async () => {
       const response = await request(app)
-        .post('/sendPushNotification')
+        .post('/sendAlertPushNotification')
         .send({ identity: 'test-token', roomName: 'Living Room' });
 
       expect(response.status).toBe(200);
@@ -62,7 +62,7 @@ describe('Notification Router', () => {
 
     it('should return 400 for invalid parameters', async () => {
       const response = await request(app)
-        .post('/sendPushNotification')
+        .post('/sendAlertPushNotification')
         .send({ identity: 123, roomName: 'Living Room' });
 
       expect(response.status).toBe(400);
@@ -105,7 +105,7 @@ describe('Notification Router', () => {
     });
   });
 
-  describe('sendPushNotification function', () => {
+  describe('sendAlertPushNotification function', () => {
     it('should log success message on successful notification', async () => {
       const mockCreate = twilio().notify.v1.services().notifications.create;
       mockCreate.mockResolvedValue({ sid: 'test-sid' });
