@@ -11,7 +11,32 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const notifyServiceSid = process.env.TWILIO_NOTIFY_SERVICE_SID;
 const client = new twilio(accountSid, authToken);
 
-// Function to send Push Notification via Twilio Notify
+/**
+ * Function to register push notification identity with Twilio
+ * @param {string} identity The identity used to identify the user
+ * @param {string} address The APN device token for IOS notifications
+ */
+const registerDevice = async (identity, address) => {
+  const binding = {
+    identity: identity,
+    bindingType: 'apn',
+    address: address
+  }
+  try {
+    const twilioBinding = await client.notify.v1.services(notifyServiceSid)
+      .bindings
+      .create(binding);
+    console.log('Successfully created binding:', twilioBinding);
+  } catch (error) {
+    console.error('Error creating binding:', error);
+  }
+}
+
+/**
+ * Function to send Push Notification via Twilio Notify
+ * @param {*} identity The identifier for the user
+ * @param {*} message The message to send in the push notification
+ */
 const sendPushNotification = async (identity, message) => {
   try {
     const notification = await client.notify.v1.services(notifyServiceSid)
@@ -27,6 +52,11 @@ const sendPushNotification = async (identity, message) => {
 };
 
 // Function to send SMS via Twilio
+/**
+ *
+ * @param {string} to The phone number to send the SMS to
+ * @param {string} message The message to send as part of the text
+ */
 const sendSMS = async (to, message) => {
   try {
     const sms = await client.messages.create({
@@ -40,6 +70,16 @@ const sendSMS = async (to, message) => {
   }
 };
 
+router.post('/registerDevice', authMiddleware, (req, res) => {
+  const { identity, address } = req.body;
+  if (typeof identity !== 'string'
+    || typeof address !== 'string') {
+    return res.status(400).send('Incorrect body parameters');
+  }
+  registerDevice(identity, address)
+  return res.send('Registered device!');
+});
+
 router.post('/sendPushNotification', authMiddleware, (req, res) => {
   const { deviceToken, roomName } = req.body;
   if (typeof deviceToken !== 'string'
@@ -48,7 +88,7 @@ router.post('/sendPushNotification', authMiddleware, (req, res) => {
   }
   const message = `There is a high severity heat alert in the ${roomName} area`
   sendPushNotification(deviceToken, message)
-  return res.send('Text push notification sent!');
+  return res.send('Push notification sent!');
 });
 
 router.post('/sendSMSNotification', authMiddleware, (req, res) => {
