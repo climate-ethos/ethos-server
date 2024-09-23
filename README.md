@@ -37,4 +37,101 @@ More information can be found [here](https://docs.docker.com/engine/security/roo
 
 ## API Endpoints
 
-TODO
+### Authentication
+
+All endpoints marked with `[AUTH]` require authentication using the `authMiddleware`.
+
+### Survey Display
+
+#### Get Survey Display Status
+
+- **URL:** `/displaySurvey`
+- **Method:** GET
+- **Description:** Retrieves the current status of survey display.
+- **Response:**
+
+  ```json
+  {
+    "displaySurvey": boolean
+  }
+  ```
+
+#### Update Survey Display Status [AUTH]
+
+- **URL:** `/displaySurvey`
+- **Method:** POST
+- **Description:** Updates the survey display status.
+- **Body:**
+
+  ```json
+  {
+    "newValue": boolean
+  }
+  ```
+
+- **Response:** String confirming the update.
+
+### Device Registration
+
+#### Register Device [AUTH]
+
+- **URL:** `/registerDevice`
+- **Method:** POST
+- **Description:** Registers a device for push notifications.
+- **Body:**
+
+  ```json
+  {
+    "identity": string,
+    "address": string,
+    "device": "android" | "ios" | undefined
+  }
+  ```
+
+- **Response:** String confirming registration.
+
+### Push Notifications
+
+#### Send Push Notification [AUTH]
+
+- **URL:** `/sendPushNotification`
+- **Method:** POST
+- **Description:** Sends a push notification to a registered device.
+- **Body:**
+
+  ```json
+  {
+    "identity": string,
+    "roomName": string
+  }
+  ```
+
+- **Response:** String confirming the notification was sent.
+
+### SMS Notifications
+
+#### Send SMS Notification [AUTH]
+
+- **URL:** `/sendSMSNotification`
+- **Method:** POST
+- **Description:** Sends an SMS notification.
+- **Body:**
+
+  ```json
+  {
+    "userId": string | number,
+    "phoneNumber": string,
+    "roomName": string,
+    "severity": string
+  }
+  ```
+
+- **Response:** String confirming the SMS was sent.
+
+### Notes
+
+- The survey display status is automatically reset to `false` every day at 7:00 PM (19:00).
+- All authenticated routes require a valid authentication token to be included in the request header.
+- Error responses will include appropriate HTTP status codes and error messages.
+
+For more information on setting up and using these endpoints, please refer to the main application documentation.
