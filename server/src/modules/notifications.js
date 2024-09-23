@@ -96,14 +96,14 @@ router.post('/registerDevice', authMiddleware, async (req, res) => {
 });
 
 router.post('/sendPushNotification', authMiddleware, async (req, res) => {
-  const { deviceToken, roomName } = req.body;
-  if (typeof deviceToken !== 'string'
+  const { identity, roomName } = req.body;
+  if (typeof identity !== 'string'
     || typeof roomName !== 'string') {
     return res.status(400).send('Incorrect body parameters');
   }
   const message = `There is a high severity heat alert in the ${roomName} area`
   try {
-    await sendPushNotification(deviceToken, message);
+    await sendPushNotification(identity, message);
     return res.send('Push notification sent!');
   } catch (error) {
     return res.status(500).send(`Error sending push notification: ${error.message}`);

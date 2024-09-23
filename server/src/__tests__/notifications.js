@@ -49,7 +49,7 @@ describe('Notification Router', () => {
     it('should send a push notification and return 200', async () => {
       const response = await request(app)
         .post('/sendPushNotification')
-        .send({ deviceToken: 'test-token', roomName: 'Living Room' });
+        .send({ identity: 'test-token', roomName: 'Living Room' });
 
       expect(response.status).toBe(200);
       expect(response.text).toBe('Text push notification sent!');
@@ -63,7 +63,7 @@ describe('Notification Router', () => {
     it('should return 400 for invalid parameters', async () => {
       const response = await request(app)
         .post('/sendPushNotification')
-        .send({ deviceToken: 123, roomName: 'Living Room' });
+        .send({ identity: 123, roomName: 'Living Room' });
 
       expect(response.status).toBe(400);
       expect(response.text).toBe('Incorrect body parameters');
