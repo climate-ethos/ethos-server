@@ -11,13 +11,16 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const notifyServiceSid = process.env.TWILIO_NOTIFY_SERVICE_SID;
 const client = new twilio(accountSid, authToken);
 
+// Tag to use for research participants (i.e. those who will be receiving surveys)
+const RESEARCH_PARTICIPANT_TAG = 'research_participant'
+
 /**
  * Function to register push notification identity with Twilio
  * @param {string} identity The identity used to identify the user
  * @param {string} address The APN device token for IOS notifications
  * @param {string} device The device type ('android' or 'ios' or undefined)
  */
-const registerDevice = async (identity, address, device) => {
+const registerDevice = async (identity, address, tag, device) => {
   const binding = {
     identity: identity,
     // Default to IOS if no device is specified
@@ -25,6 +28,9 @@ const registerDevice = async (identity, address, device) => {
     // 'apn' = apple push notification service (IOS)
     bindingType: device === 'android' ? 'fcm' : 'apn',
     address: address
+  }
+  if (tag === RESEARCH_PARTICIPANT_TAG) {
+    binding.tags = [tag]
   }
   try {
     const twilioBinding = await client.notify.v1.services(notifyServiceSid)
@@ -43,16 +49,21 @@ const registerDevice = async (identity, address, device) => {
  * @param {*} identity The identifier for the user
  * @param {*} message The message to send in the push notification
  */
-const sendPushNotification = async (identity, message) => {
+const sendPushNotification = async (identity, message, tag) => {
+  const notification = {
+    identity: [identity],
+    body: message,
+  };
+  if (tag === RESEARCH_PARTICIPANT_TAG) {
+    // Add tag to notification if specified
+    notification.tags = [tag];
+  }
   try {
-    const notification = await client.notify.v1.services(notifyServiceSid)
+    const twilioNotification = await client.notify.v1.services(notifyServiceSid)
       .notifications
-      .create({
-        identity: identity,
-        body: message,
-      });
-    console.log('Push notification sent with SID:', notification.sid);
-    return notification;
+      .create();
+    console.log('Push notification sent with SID:', twilioNotification.sid);
+    return twilioNotification;
   } catch (error) {
     console.error('Error sending push notification:', error);
     throw error;
@@ -81,14 +92,15 @@ const sendSMS = async (to, message) => {
 };
 
 router.post('/registerDevice', authMiddleware, async (req, res) => {
-  const { identity, address, device } = req.body;
+  const { identity, address, tag, device } = req.body;
   if (typeof identity !== 'string'
     || typeof address !== 'string'
+    || (tag !== RESEARCH_PARTICIPANT_TAG && tag !== undefined)
     || (device !== 'android' && device !== 'ios' && device !== undefined)) {
     return res.status(400).send('Incorrect body parameters');
   }
   try {
-    await registerDevice(identity, address, device);
+    await registerDevice(identity, address, tag, device);
     return res.send('Registered device!');
   } catch (error) {
     return res.status(500).send(`Error registering device: ${error.message}`);
@@ -126,7 +138,7 @@ router.post('/sendSurveyPushNotification', authMiddleware, async (req, res) => {
     message = "Survey: There is a heat alert survey awaiting completion"
   }
   try {
-    await sendPushNotification(identity, message);
+    await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG);
     return res.send('Push notification sent!');
   } catch (error) {
     return res.status(500).send(`Error sending push notification: ${error.message}`);

@@ -77,13 +77,14 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 - **URL:** `/registerDevice`
 - **Method:** POST
-- **Description:** Registers a device for push notifications. If device is undefined it will default to IOS device.
+- **Description:** Registers a device for push notifications. If device is undefined, it will default to iOS. Set tag as 'research_participant' for those users who will be receiving surveys.
 - **Body:**
 
   ```json
   {
     "identity": string,
     "address": string,
+    "tag": "research_participant" | undefined,
     "device": "android" | "ios" | undefined
   }
   ```
@@ -146,8 +147,8 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 ### Notes
 
-- The survey display status is automatically reset to `false` every day at 7:00 PM (19:00).
 - All authenticated routes require a valid authentication token to be included in the request header.
 - Error responses will include appropriate HTTP status codes and error messages.
+- The `sendPushNotification` and `sendSMS` functions are available for use within the application but are not directly exposed as API endpoints.
 
 For more information on setting up and using these endpoints, please refer to the main application documentation.
