@@ -31,6 +31,10 @@ const twilio = require('twilio');
 
 jest.mock('../modules/auth', () => ({
   authMiddleware: (req, res, next) => next(),
+  authMiddlewareCouchDB: (req, res, next) => {
+    req.authenticatedUser = req.body.identity || req.body.userId;
+    next()
+  },
 }));
 
 // Mock environment variables
@@ -49,14 +53,14 @@ describe('Notification Router', () => {
     it('should send a push notification and return 200', async () => {
       const response = await request(app)
         .post('/sendAlertPushNotification')
-        .send({ identity: 'test-token', roomName: 'Living Room' });
+        .send({ identity: '999', roomName: 'Living Room', severity: 'high' });
 
       expect(response.status).toBe(200);
-      expect(response.text).toBe('Text push notification sent!');
+      expect(response.text).toBe('Push notification sent!');
       expect(twilio().notify.v1.services().notifications.create)
         .toHaveBeenCalledWith({
-          identity: 'test-token',
-          body: 'There is a high severity heat alert in the Living Room area'
+          identity: ['999'],
+          body: '🔴 There is a high severity heat alert in the Living Room area'
         });
     });
 
@@ -86,7 +90,7 @@ describe('Notification Router', () => {
       expect(twilio().messages.create).toHaveBeenCalledWith({
         to: '+1234567890',
         from: process.env.TWILIO_PHONE_NUMBER,
-        body: 'User 123 has recorded a high severity alert in the Bedroom area'
+        body: 'User 123 has recorded a high severity heat alert in the Bedroom area'
       });
     });
 
@@ -116,7 +120,7 @@ describe('Notification Router', () => {
 
       expect(console.log).toHaveBeenCalledWith('Push notification sent with SID:', 'test-sid');
       expect(mockCreate).toHaveBeenCalledWith({
-        identity: 'test-identity',
+        identity: ['test-identity'],
         body: 'Test message',
       });
     });
