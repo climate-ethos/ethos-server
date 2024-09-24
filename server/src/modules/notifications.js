@@ -61,7 +61,7 @@ const sendPushNotification = async (identity, message, tag) => {
   try {
     const twilioNotification = await client.notify.v1.services(notifyServiceSid)
       .notifications
-      .create();
+      .create(notification);
     console.log('Push notification sent with SID:', twilioNotification.sid);
     return twilioNotification;
   } catch (error) {
