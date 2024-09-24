@@ -126,7 +126,7 @@ router.post('/sendAlertPushNotification', authMiddlewareCouchDB, async (req, res
     return res.status(403).send('Identity does not match authenticated user');
   }
 
-  const message = `There is a ${severity} severity heat alert in the ${roomName} area`
+  const message = severity === 'medium' ? '🟡' : '🔴' + ` There is a ${severity} severity heat alert in the ${roomName} area`
   try {
     await sendPushNotification(identity, message);
     return res.send('Push notification sent!');
@@ -180,7 +180,7 @@ router.post('/sendSMSNotification', authMiddlewareCouchDB, async (req, res) => {
     return res.status(403).send('Identity does not match authenticated user');
   }
 
-  const message = `User ${userId} has recorded a ${severity} severity alert in the ${roomName} area`
+  const message = `User ${userId} has recorded a ${severity} severity heat alert in the ${roomName} area`
   try {
     await sendSMS(phoneNumber, message);
     return res.send('Text message notification sent!');
