@@ -45,6 +45,38 @@ const registerDevice = async (identity, address, tag, device) => {
 }
 
 /**
+ * Function to remove a registered device from Twilio
+ * @param {string} identity The identity of the user
+ * @param {string} address The address to remove
+ * @returns true when the device is successfully removed
+ */
+const removeDevice = async (identity, address) => {
+  try {
+    // Find the binding SID for the given identity and address
+    const bindings = await client.notify.v1.services(notifyServiceSid)
+      .bindings
+      .list({identity: identity});
+
+    const bindingToRemove = bindings.find(binding => binding.address === address);
+
+    if (!bindingToRemove) {
+      throw new Error('No binding found for the given identity and address');
+    }
+
+    // Remove the binding sid
+    await client.notify.v1.services(notifyServiceSid)
+      .bindings(bindingToRemove.sid)
+      .remove();
+
+    console.log('Successfully removed binding for:', identity, address);
+    return true;
+  } catch (error) {
+    console.error('Error removing binding:', error);
+    throw error;
+  }
+}
+
+/**
  * Function to send Push Notification via Twilio Notify
  * @param {*} identity The identifier for the user
  * @param {*} message The message to send in the push notification
@@ -110,6 +142,25 @@ router.post('/registerDevice', authMiddlewareCouchDB, async (req, res) => {
     return res.send('Registered device!');
   } catch (error) {
     return res.status(500).send(`Error registering device: ${error.message}`);
+  }
+});
+
+router.post('/removeDevice', authMiddlewareCouchDB, async (req, res) => {
+  const { identity, address } = req.body;
+  if (typeof identity !== 'string' || typeof address !== 'string') {
+    return res.status(400).send('Incorrect body parameters');
+  }
+
+  // Check if the provided identity matches the authenticated user
+  if (identity !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
+  try {
+    await removeDevice(identity, address);
+    return res.send('Device removed successfully');
+  } catch (error) {
+    return res.status(500).send(`Error removing device: ${error.message}`);
   }
 });
 

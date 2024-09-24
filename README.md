@@ -93,6 +93,22 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 - **Response:** String confirming registration.
 
+#### Remove Device [AUTHDB]
+
+- **URL:** `/removeDevice`
+- **Method:** POST
+- **Description:** Removes a device for push notifications.
+- **Body:**
+
+  ```json
+  {
+    "identity": string,
+    "address": string,
+  }
+  ```
+
+- **Response:** String confirming removal.
+
 ### Push Notifications
 
 #### Send Alert Push Notification [AUTHDB]
