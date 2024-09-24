@@ -50,7 +50,21 @@ describe('Notification Router', () => {
   });
 
   describe('POST /sendAlertPushNotification', () => {
-    it('should send a push notification and return 200', async () => {
+    it('should send a medium severity push notification and return 200', async () => {
+      const response = await request(app)
+        .post('/sendAlertPushNotification')
+        .send({ identity: '999', roomName: 'Living Room', severity: 'medium' });
+
+      expect(response.status).toBe(200);
+      expect(response.text).toBe('Push notification sent!');
+      expect(twilio().notify.v1.services().notifications.create)
+        .toHaveBeenCalledWith({
+          identity: ['999'],
+          body: '🟡 There is a medium severity heat alert in the Living Room area'
+        });
+    });
+
+    it('should send a high severity push notification and return 200', async () => {
       const response = await request(app)
         .post('/sendAlertPushNotification')
         .send({ identity: '999', roomName: 'Living Room', severity: 'high' });
