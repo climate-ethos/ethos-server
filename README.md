@@ -105,7 +105,8 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
   ```json
   {
     "identity": string,
-    "roomName": string
+    "roomName": string,
+    "severity": "medium" | "high"
   }
   ```
 
@@ -141,7 +142,7 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
     "userId": string | number,
     "phoneNumber": string,
     "roomName": string,
-    "severity": string
+    "severity": "medium" | "high"
   }
   ```
 

@@ -114,9 +114,10 @@ router.post('/registerDevice', authMiddlewareCouchDB, async (req, res) => {
 });
 
 router.post('/sendAlertPushNotification', authMiddlewareCouchDB, async (req, res) => {
-  const { identity, roomName } = req.body;
+  const { identity, roomName, severity } = req.body;
   if (typeof identity !== 'string'
-    || typeof roomName !== 'string') {
+    || typeof roomName !== 'string'
+    || (severity !== 'medium' && severity !== 'high')) {
     return res.status(400).send('Incorrect body parameters');
   }
 
@@ -125,7 +126,7 @@ router.post('/sendAlertPushNotification', authMiddlewareCouchDB, async (req, res
     return res.status(403).send('Identity does not match authenticated user');
   }
 
-  const message = `There is a high severity heat alert in the ${roomName} area`
+  const message = `There is a ${severity} severity heat alert in the ${roomName} area`
   try {
     await sendPushNotification(identity, message);
     return res.send('Push notification sent!');
@@ -169,7 +170,7 @@ router.post('/sendSMSNotification', authMiddlewareCouchDB, async (req, res) => {
     (typeof userId !== 'string' && typeof userId !== 'number') ||
     typeof phoneNumber !== 'string' ||
     typeof roomName !== 'string' ||
-    typeof severity !== 'string'
+    (severity !== 'medium' && severity !== 'high')
   ) {
     return res.status(400).send('Incorrect body parameters');
   }
