@@ -86,6 +86,15 @@ describe('Notification Router', () => {
       expect(response.status).toBe(400);
       expect(response.text).toBe('Incorrect body parameters');
     });
+
+    it('should return 400 for invalid severity level', async () => {
+      const response = await request(app)
+        .post('/sendAlertPushNotification')
+        .send({ identity: '999', roomName: 'Living Room', severity: 'message injection' });
+
+      expect(response.status).toBe(400);
+      expect(response.text).toBe('Incorrect body parameters');
+    });
   });
 
   describe('POST /sendSMSNotification', () => {
