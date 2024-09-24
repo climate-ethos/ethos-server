@@ -3,7 +3,7 @@ const twilio = require('twilio');
 const express = require('express');
 
 const router = express.Router();
-const { authMiddleware } = require('./auth')
+const { authMiddlewareCouchDB } = require('./auth')
 
 // Twilio credentials
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -91,7 +91,7 @@ const sendSMS = async (to, message) => {
   }
 };
 
-router.post('/registerDevice', authMiddleware, async (req, res) => {
+router.post('/registerDevice', authMiddlewareCouchDB, async (req, res) => {
   const { identity, address, tag, device } = req.body;
   if (typeof identity !== 'string'
     || typeof address !== 'string'
@@ -99,6 +99,12 @@ router.post('/registerDevice', authMiddleware, async (req, res) => {
     || (device !== 'android' && device !== 'ios' && device !== undefined)) {
     return res.status(400).send('Incorrect body parameters');
   }
+
+  // Check if the provided identity matches the authenticated user
+  if (identity !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
   try {
     await registerDevice(identity, address, tag, device);
     return res.send('Registered device!');
@@ -107,12 +113,18 @@ router.post('/registerDevice', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/sendAlertPushNotification', authMiddleware, async (req, res) => {
+router.post('/sendAlertPushNotification', authMiddlewareCouchDB, async (req, res) => {
   const { identity, roomName } = req.body;
   if (typeof identity !== 'string'
     || typeof roomName !== 'string') {
     return res.status(400).send('Incorrect body parameters');
   }
+
+  // Check if the provided identity matches the authenticated user
+  if (identity !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
   const message = `There is a high severity heat alert in the ${roomName} area`
   try {
     await sendPushNotification(identity, message);
@@ -122,12 +134,18 @@ router.post('/sendAlertPushNotification', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/sendSurveyPushNotification', authMiddleware, async (req, res) => {
+router.post('/sendSurveyPushNotification', authMiddlewareCouchDB, async (req, res) => {
   const { identity, surveyType } = req.body;
   if (typeof identity !== 'string'
     || (surveyType !== 'bom' && surveyType !== 'alert' && surveyType !== 'both')) {
     return res.status(400).send('Incorrect body parameters');
   }
+
+  // Check if the provided identity matches the authenticated user
+  if (identity !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
   // Default to both survey message
   let message = "Survey: There is a BOM survey and heat alert survey awaiting completion"
   if (surveyType === 'bom') {
@@ -145,7 +163,7 @@ router.post('/sendSurveyPushNotification', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/sendSMSNotification', authMiddleware, async (req, res) => {
+router.post('/sendSMSNotification', authMiddlewareCouchDB, async (req, res) => {
   const { userId, phoneNumber, roomName, severity } = req.body;
   if (
     (typeof userId !== 'string' && typeof userId !== 'number') ||
@@ -155,6 +173,12 @@ router.post('/sendSMSNotification', authMiddleware, async (req, res) => {
   ) {
     return res.status(400).send('Incorrect body parameters');
   }
+
+  // Check if the provided userId matches the authenticated user
+  if (userId !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
   const message = `User ${userId} has recorded a ${severity} severity alert in the ${roomName} area`
   try {
     await sendSMS(phoneNumber, message);

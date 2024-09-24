@@ -41,6 +41,8 @@ More information can be found [here](https://docs.docker.com/engine/security/roo
 
 All endpoints marked with `[AUTH]` require authentication using the `authMiddleware`.
 
+All endpoints marked with `[AUTHDB]` require authentication against the couchdb database. The authenticated user's identity must match the `identity` or `userId` provided in the request body for applicable endpoints.
+
 ### Survey Display
 
 #### Get Survey Display Status
@@ -73,7 +75,7 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 ### Device Registration
 
-#### Register Device [AUTH]
+#### Register Device [AUTHDB]
 
 - **URL:** `/registerDevice`
 - **Method:** POST
@@ -93,7 +95,7 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 ### Push Notifications
 
-#### Send Alert Push Notification [AUTH]
+#### Send Alert Push Notification [AUTHDB]
 
 - **URL:** `/sendAlertPushNotification`
 - **Method:** POST
@@ -109,7 +111,7 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 - **Response:** String confirming the notification was sent.
 
-#### Send Survey Push Notification [AUTH]
+#### Send Survey Push Notification [AUTHDB]
 
 - **URL:** `/sendSurveyPushNotification`
 - **Method:** POST
@@ -127,7 +129,7 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 
 ### SMS Notifications
 
-#### Send SMS Notification [AUTH]
+#### Send SMS Notification [AUTHDB]
 
 - **URL:** `/sendSMSNotification`
 - **Method:** POST
@@ -148,7 +150,6 @@ All endpoints marked with `[AUTH]` require authentication using the `authMiddlew
 ### Notes
 
 - All authenticated routes require a valid authentication token to be included in the request header.
+- For endpoints that require an `identity` or `userId` in the request body, this `identity` must match the authenticated user's identity.
 - Error responses will include appropriate HTTP status codes and error messages.
 - The `sendPushNotification` and `sendSMS` functions are available for use within the application but are not directly exposed as API endpoints.
-
-For more information on setting up and using these endpoints, please refer to the main application documentation.
