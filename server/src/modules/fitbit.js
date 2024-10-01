@@ -132,13 +132,11 @@ async function refreshAccessToken(userId, refreshToken) {
   }
 }
 
-// Middleware to check and refresh token if necessary
-async function ensureValidToken(req, res, next) {
-  const userId = req.params.userId; // Assuming the user ID is passed as a route parameter
+async function getValidToken(userId) {
   const tokens = await getTokens(userId);
 
   if (!tokens) {
-    return res.status(401).send('User not authenticated');
+    throw new Error('User not authenticated');
   }
 
   const now = new Date();
@@ -147,15 +145,26 @@ async function ensureValidToken(req, res, next) {
   if (now >= expiresAt) {
     try {
       const newAccessToken = await refreshAccessToken(userId, tokens.refresh_token);
-      req.accessToken = newAccessToken;
+      return newAccessToken;
     } catch (error) {
-      return res.status(401).send('Failed to refresh token');
+      console.error(`Failed to refresh token for user ${userId}:`, error.message);
+      throw new Error('Failed to refresh token');
     }
   } else {
-    req.accessToken = tokens.access_token;
+    return tokens.access_token;
   }
+}
 
-  next();
+// Middleware to ensure a valid token
+async function ensureValidToken(req, res, next) {
+  const userId = req.params.userId; // Assuming the user ID is passed as a route parameter
+
+  try {
+    req.accessToken = await getValidToken(userId);
+    next();
+  } catch (error) {
+    res.status(401).send(error.message);
+  }
 }
 
 // Get list of devices for a user
@@ -170,6 +179,67 @@ router.get('/fitbit/:userId/devices', authMiddleware, ensureValidToken, async (r
   } catch (error) {
     console.error('Error fetching user profile:', error.response ? error.response.data : error.message);
     res.status(500).send('Error fetching user profile');
+  }
+});
+
+router.get('/fitbit/all-users', authMiddleware, async (req, res) => {
+  try {
+    const userKeys = await redis.keys('user:*');
+    const userIds = userKeys.map(key => key.split(':')[1]);
+
+    let tableRows = '';
+
+    for (const userId of userIds) {
+      try {
+        const accessToken = await getValidToken(userId);
+
+        const response = await axios.get('https://api.fitbit.com/1/user/-/devices.json', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+
+        const devicesInfo = response.data.map(device =>
+          `${device.deviceVersion} (${device.batteryLevel}%) ${device.lastSyncTime}`
+        ).join('\n');
+
+        tableRows += `<tr><td>${userId}</td><td>${devicesInfo}</td></tr>`;
+      } catch (error) {
+        console.error(`Error processing user ${userId}:`, error.message);
+        tableRows += `<tr><td>${userId}</td><td>${error.message}</td></tr>`;
+      }
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Users and Devices</title>
+        <style>
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid black; padding: 8px; text-align: left; }
+          th { background-color: #f2f2f2; }
+        </style>
+      </head>
+      <body>
+        <h1>Users and Their Devices</h1>
+        <table>
+          <tr>
+            <th>User ID</th>
+            <th>Devices</th>
+          </tr>
+          ${tableRows}
+        </table>
+      </body>
+      </html>
+    `;
+
+    res.send(html);
+  } catch (error) {
+    console.error('Error generating users and devices table:', error.message);
+    res.status(500).send('Error generating users and devices table');
   }
 });
 
