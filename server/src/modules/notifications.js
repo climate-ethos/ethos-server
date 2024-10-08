@@ -215,6 +215,32 @@ router.post('/sendSurveyPushNotification', authMiddlewareCouchDB, async (req, re
   }
 });
 
+// Endpoint to send Fitbit push notification to research participants
+router.post('/sendFitbitPushNotification', authMiddlewareCouchDB, async (req, res) => {
+  const { identity } = req.body;
+
+  if (typeof identity !== 'string') {
+    return res.status(400).send('Incorrect body parameters');
+  }
+
+  // Check if the provided identity matches the authenticated user
+  if (identity !== req.authenticatedUser) {
+    return res.status(403).send('Identity does not match authenticated user');
+  }
+
+  const message = "Reminder: Please charge your Fitbit device and sync it with the app to ensure accurate data collection.";
+
+  try {
+    // Send push notification to the participant with RESEARCH_PARTICIPANT_TAG
+    const notification = await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG);
+    console.log('Fitbit reminder push notification sent:', notification.sid);
+    return res.send('Fitbit push notification sent!');
+  } catch (error) {
+    console.error('Error sending Fitbit push notification:', error);
+    return res.status(500).send(`Error sending Fitbit push notification: ${error.message}`);
+  }
+});
+
 router.post('/sendSMSNotification', authMiddlewareCouchDB, async (req, res) => {
   const { userId, phoneNumber, roomName, severity } = req.body;
   if (
