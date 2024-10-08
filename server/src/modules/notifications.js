@@ -228,7 +228,7 @@ router.post('/sendFitbitPushNotification', authMiddlewareCouchDB, async (req, re
     return res.status(403).send('Identity does not match authenticated user');
   }
 
-  const message = "Reminder: Please charge your Fitbit device and sync it with the app to ensure accurate data collection.";
+  const message = "Reminder: Please charge your Fitbit device and sync it with the Fitbit app (via Bluetooth) to ensure accurate data collection.";
 
   try {
     // Send push notification to the participant with RESEARCH_PARTICIPANT_TAG
