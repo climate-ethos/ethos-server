@@ -30,11 +30,18 @@ More information can be found [here](https://docs.docker.com/engine/security/roo
 
 ### Running the server
 
-1. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
-2. Configure `nginx/conf/nginx.conf` file with the correct domain name for your server
-3. Start nginx with `docker compose up -d nginx`. If you get errors you may need to comment out the 2nd half of `nginx.conf` until you setup certbot
-4. Setup certbot by running `docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
-5. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
+1. (If running docker rootless) Login to docker-user account with `sudo machinectl shell docker-user@`
+2. Clone directory
+3. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
+4. Configure `nginx/conf/nginx.conf` file with the correct domain name for your server
+5. Start nginx with `docker compose up -d nginx`. If you get errors you may need to comment out the 2nd half of `nginx.conf` until you setup certbot
+6. Setup certbot by running `docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
+7. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
+
+### Configuring CouchDB users
+
+1. Copy `users.csv.example` to `users.csv` and populate the file with all the usernames and passwords you want to use for the database.
+2. Run `sh prod_create_users_from_csv.sh` to create CouchDB users and views from that file.
 
 ## API Endpoints
 

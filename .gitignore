@@ -3,3 +3,6 @@
 
 couchdb/data
 certbot
+
+# Users csv
+users.csv
