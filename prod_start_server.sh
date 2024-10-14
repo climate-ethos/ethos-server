@@ -4,4 +4,4 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
-docker compose up --build -d
+docker compose --profile prod up --build -d

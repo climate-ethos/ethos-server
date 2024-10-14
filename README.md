@@ -18,12 +18,13 @@ This repo requires a pre-existing installation of docker to be configured, prefe
 
 1. Run `curl -fsSL https://get.docker.com -o get-docker.sh` and then `sudo sh ./get-docker.sh`
 2. Install packages to configure rootless docker `sudo apt-get install -y dbus-user-session uidmap systemd-container`
-3. Add a new user to run docker with `adduser docker-user`
-4. Disable existing running docker instance `sudo systemctl disable --now docker.service docker.socket` and `sudo rm /var/run/docker.sock`
-5. Login with user created earlier using `sudo machinectl shell docker-user@`
-6. Setup daemon with `dockerd-rootless-setuptool.sh install`
-7. Start docker instance with `systemctl --user start docker.service`
-8. Enable starting docker on system startup with `sudo loginctl enable-linger docker-user`
+3. Add `net.ipv4.ip_unprivileged_port_start=80` to `/etc/sysctl.conf` to allow binding of port 80 for the docker-user then run `sudo sysctl -p` to apply changes
+4. Add a new user to run docker with `adduser docker-user`
+5. Disable existing running docker instance `sudo systemctl disable --now docker.service docker.socket` and `sudo rm /var/run/docker.sock`
+6. Login with user created earlier using `sudo machinectl shell docker-user@`
+7. Setup daemon with `dockerd-rootless-setuptool.sh install`
+8. Start docker instance with `systemctl --user start docker.service`
+9. Enable starting docker on system startup with `sudo loginctl enable-linger docker-user`
 
 More information can be found [here](https://docs.docker.com/engine/security/rootless/)
 
