@@ -60,4 +60,4 @@ services:
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --dry-run; echo \"Sleeping for 30 seconds...\"; sleep 30 & wait $${!}; done;'"
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; echo \"Sleeping for 12 hours...\"; sleep 12h & wait $${!}; done;'"
