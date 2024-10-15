@@ -35,7 +35,7 @@ More information can be found [here](https://docs.docker.com/engine/security/roo
 3. Copy .env.example to .env (`cp .env.example .env`) and fill out all the fields (`nano .env`)
 4. Configure `nginx/conf/nginx.conf` file with the correct domain name for your server
 5. Start nginx with `docker compose up -d nginx`. If you get errors you may need to comment out the 2nd half of `nginx.conf` until you setup certbot
-6. Setup certbot by running `docker compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
+6. Setup certbot by running `docker compose run --rm --entrypoint certbot certbot certonly --webroot --webroot-path /var/www/certbot/ -d example.org` replacing example.org with your domain name
 7. Run `sh dev_start_server.sh` or `sh prod_start_server.sh` depending on if you are in a production or dev environment
 
 ### Configuring CouchDB users
