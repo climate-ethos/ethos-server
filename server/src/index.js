@@ -6,7 +6,6 @@ const fs = require('fs');
 const cors = require('cors');
 const { router: surveyRoutes, scheduleResetJob } = require('./modules/survey');
 const { router: notificationRoutes } = require('./modules/notifications');
-const { router: fitbitRoutes } = require('./modules/fitbit');
 
 const isDev = process.env.NODE_ENV === 'development';
 let credentials;
@@ -27,7 +26,6 @@ app.use(cors());
 // Use survey routes
 app.use('/', surveyRoutes);
 app.use('/', notificationRoutes);
-app.use('/', fitbitRoutes);
 
 // Schedule job to reset survey each day
 scheduleResetJob();
