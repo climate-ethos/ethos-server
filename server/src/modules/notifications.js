@@ -14,6 +14,11 @@ const client = new twilio(accountSid, authToken);
 // Tag to use for research participants (i.e. those who will be receiving surveys)
 const RESEARCH_PARTICIPANT_TAG = 'research_participant'
 
+// Android channel ID's
+const HEAT_ALERT_CHANNEL_ID = 'heat-alerts';
+const SURVEY_NOTIFICATION_CHANNEL_ID = 'survey-notifications';
+const FITBIT_NOTIFICATION_CHANNEL_ID = 'fitbit-notifications';
+
 /**
  * Function to register push notification identity with Twilio
  * @param {string} identity The identity used to identify the user
@@ -81,10 +86,14 @@ const removeDevice = async (identity, address) => {
  * @param {*} identity The identifier for the user
  * @param {*} message The message to send in the push notification
  */
-const sendPushNotification = async (identity, message, tag) => {
+const sendPushNotification = async (identity, message, tag, androidChannelId) => {
   const notification = {
     identity: [identity],
     body: message,
+    // FCM Options (to specify the notification channel)
+    fcm: {
+      android_channel_id: androidChannelId
+    }
   };
   if (tag === RESEARCH_PARTICIPANT_TAG) {
     // Add tag to notification if specified
@@ -179,7 +188,7 @@ router.post('/sendAlertPushNotification', authMiddlewareCouchDB, async (req, res
 
   const message = (severity === 'medium' ? '🟡' : '🔴') + ` There is a ${severity} severity heat alert in the ${roomName} area`
   try {
-    await sendPushNotification(identity, message);
+    await sendPushNotification(identity, message, undefined, HEAT_ALERT_CHANNEL_ID);
     return res.send('Push notification sent!');
   } catch (error) {
     return res.status(500).send(`Error sending push notification: ${error.message}`);
@@ -208,7 +217,7 @@ router.post('/sendSurveyPushNotification', authMiddlewareCouchDB, async (req, re
     message = "Survey: There is a heat alert survey awaiting completion"
   }
   try {
-    await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG);
+    await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG, SURVEY_NOTIFICATION_CHANNEL_ID);
     return res.send('Push notification sent!');
   } catch (error) {
     return res.status(500).send(`Error sending push notification: ${error.message}`);
@@ -232,7 +241,7 @@ router.post('/sendFitbitPushNotification', authMiddlewareCouchDB, async (req, re
 
   try {
     // Send push notification to the participant with RESEARCH_PARTICIPANT_TAG
-    const notification = await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG);
+    const notification = await sendPushNotification(identity, message, RESEARCH_PARTICIPANT_TAG, FITBIT_NOTIFICATION_CHANNEL_ID);
     console.log('Fitbit reminder push notification sent:', notification.sid);
     return res.send('Fitbit push notification sent!');
   } catch (error) {
