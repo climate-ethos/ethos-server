@@ -26,26 +26,26 @@ describe('Survey Router', () => {
     jest.clearAllMocks();
   });
 
-  describe('GET /displaySurvey', () => {
+  describe('GET /displayBomSurvey', () => {
     it('should return the current displaySurvey value', async () => {
-      const response = await request(app).get('/displaySurvey');
+      const response = await request(app).get('/displayBomSurvey');
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ displaySurvey: false });
     });
   });
 
-  describe('POST /displaySurvey', () => {
+  describe('POST /displayBomSurvey', () => {
     it('should update displaySurvey value when authorized', async () => {
       authMiddleware.mockImplementation((req, res, next) => next());
 
       const response = await request(app)
-        .post('/displaySurvey')
+        .post('/displayBomSurvey')
         .send({ newValue: true });
 
       expect(response.status).toBe(200);
       expect(response.text).toBe('displaySurvey updated to true');
 
-      const getResponse = await request(app).get('/displaySurvey');
+      const getResponse = await request(app).get('/displayBomSurvey');
       expect(getResponse.body).toEqual({ displaySurvey: true });
     });
 
@@ -53,7 +53,7 @@ describe('Survey Router', () => {
       authMiddleware.mockImplementation((req, res, next) => res.status(401).send('Unauthorized'));
 
       const response = await request(app)
-        .post('/displaySurvey')
+        .post('/displayBomSurvey')
         .send({ newValue: true });
 
       expect(response.status).toBe(401);
@@ -64,7 +64,7 @@ describe('Survey Router', () => {
       authMiddleware.mockImplementation((req, res, next) => next());
 
       const response = await request(app)
-        .post('/displaySurvey')
+        .post('/displayBomSurvey')
         .send({ newValue: 'not a boolean' });
 
       expect(response.status).toBe(400);
@@ -83,14 +83,14 @@ describe('Survey Router', () => {
 
       // Set displaySurvey to true
       await request(app)
-        .post('/displaySurvey')
+        .post('/displayBomSurvey')
         .send({ newValue: true });
 
       // Run the scheduled job
       job();
 
       // Check if displaySurvey is reset to false
-      const response = await request(app).get('/displaySurvey');
+      const response = await request(app).get('/displayBomSurvey');
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ displaySurvey: false });
     });

@@ -60,7 +60,7 @@ async function setUserSurveyState(userId, value) {
 //   await setGlobalSurveyState(false);
 // }
 
-router.get('/displaySurvey', async (req, res) => {
+router.get('/displayBomSurvey', async (req, res) => {
   try {
     const displaySurvey = await getGlobalSurveyState();
     res.json({ displaySurvey });
@@ -70,7 +70,7 @@ router.get('/displaySurvey', async (req, res) => {
   }
 });
 
-router.post('/displaySurvey', authMiddleware, async (req, res) => {
+router.post('/displayBomSurvey', authMiddleware, async (req, res) => {
   const { newValue } = req.body;
 
   if (typeof newValue !== 'boolean') {

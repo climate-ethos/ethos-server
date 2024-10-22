@@ -8,7 +8,7 @@ The root path ('/') redirects to couchdb running on port 5984 while the path ('/
 
 ## Sending surveys to clients
 
-Surveys can be sent to clients by running `curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST http://example.org/server/displaySurvey` where user and password are the `USERNAME` and `PASSWORD` configured in `.env` and `example.org` is the domain name of the server
+Surveys can be sent to clients by running `curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST http://example.org/server/displayBomSurvey` where user and password are the `USERNAME` and `PASSWORD` configured in `.env` and `example.org` is the domain name of the server
 
 ## Installation & running
 
@@ -55,9 +55,9 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 #### Get Survey Display Status
 
-- **URL:** `/displaySurvey`
+- **URL:** `/displayBomSurvey`
 - **Method:** GET
-- **Description:** Retrieves the current status of survey display.
+- **Description:** Retrieves the current status of whether to display a BOM survey.
 - **Response:**
 
   ```json
@@ -68,9 +68,9 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 #### Update Survey Display Status [AUTH]
 
-- **URL:** `/displaySurvey`
+- **URL:** `/displayBomSurvey`
 - **Method:** POST
-- **Description:** Updates the survey display status.
+- **Description:** Updates the BOM survey display status.
 - **Body:**
 
   ```json
