@@ -54,7 +54,7 @@ CSV_FILE="users.csv"
     read  # Skip the header
     while IFS=',' read -r username password || [[ -n "$username" ]]; do
         echo "Adding user: $username"
-        # create_couchdb_user "$username" "$password"
+        create_couchdb_user "$username" "$password"
         create_couchdb_views_for_user "$username"
     done
 } < "$CSV_FILE"
