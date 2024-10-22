@@ -33,6 +33,17 @@ services:
     env_file:
       - ./.env  # Load environment variables for CouchDB
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
   nginx:
     image: nginx:latest
     profiles: [prod]
