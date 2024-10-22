@@ -53,7 +53,7 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 ### Survey Display
 
-#### Get Survey Display Status
+#### Get BOM Survey Display Status
 
 - **URL:** `/displayBomSurvey`
 - **Method:** GET
@@ -66,7 +66,7 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
   }
   ```
 
-#### Update Survey Display Status [AUTH]
+#### Update BOM Survey Display Status [AUTH]
 
 - **URL:** `/displayBomSurvey`
 - **Method:** POST
@@ -80,6 +80,45 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
   ```
 
 - **Response:** String confirming the update.
+
+#### Get User Survey Display Status [AUTHDB]
+
+- **URL:** `/displayUserSurvey`
+- **Method:** GET
+- **Description:** Retrieves the current status of whether to display a BOM survey.
+- **Response:**
+
+  ```json
+  {
+    "displaySurvey": boolean
+  }
+  ```
+
+#### Update User Survey Display Status [AUTHDB]
+
+- **URL:** `/displayUserSurvey`
+- **Method:** POST
+- **Description:** Updates the BOM survey display status.
+- **Body:**
+
+  ```json
+  {
+    "newValue": boolean
+  }
+  ```
+
+- **Response:** String confirming the update.
+
+- **URL:** `/displayBomSurvey`
+- **Method:** GET
+- **Description:** Retrieves the current status of whether to display a BOM survey.
+- **Response:**
+
+  ```json
+  {
+    "displaySurvey": boolean
+  }
+  ```
 
 ### Device Registration
 
