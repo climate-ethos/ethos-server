@@ -81,11 +81,11 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 - **Response:** String confirming the update.
 
-#### Get User Survey Display Status [AUTHDB]
+#### Get User BOM Survey Display Status [AUTHDB]
 
-- **URL:** `/displayUserSurvey`
+- **URL:** `/displayUserHeatSurvey`
 - **Method:** GET
-- **Description:** Retrieves the current status of whether to display a BOM survey.
+- **Description:** Retrieves the current status of whether to display a BOM survey for given user passed in credentials.
 - **Response:**
 
   ```json
@@ -94,11 +94,11 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
   }
   ```
 
-#### Update User Survey Display Status [AUTHDB]
+#### Update User BOM Survey Display Status [AUTHDB]
 
-- **URL:** `/displayUserSurvey`
+- **URL:** `/displayUserHeatSurvey`
 - **Method:** POST
-- **Description:** Updates the BOM survey display status.
+- **Description:** Updates the BOM survey display status of current user passed in credentials.
 - **Body:**
 
   ```json
@@ -109,9 +109,11 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
 
 - **Response:** String confirming the update.
 
-- **URL:** `/displayBomSurvey`
+#### Get User Heat Survey Display Status [AUTHDB]
+
+- **URL:** `/displayUserHeatSurvey`
 - **Method:** GET
-- **Description:** Retrieves the current status of whether to display a BOM survey.
+- **Description:** Retrieves the current status of whether to display a Heat Alert survey for given user passed in credentials.
 - **Response:**
 
   ```json
@@ -119,6 +121,21 @@ All endpoints marked with `[AUTHDB]` require authentication against the couchdb 
     "displaySurvey": boolean
   }
   ```
+
+#### Update User Heat Survey Display Status [AUTHDB]
+
+- **URL:** `/displayUserHeatSurvey`
+- **Method:** POST
+- **Description:** Updates the Heat Alert survey display status of current user passed in credentials.
+- **Body:**
+
+  ```json
+  {
+    "newValue": boolean
+  }
+  ```
+
+- **Response:** String confirming the update.
 
 ### Device Registration
 

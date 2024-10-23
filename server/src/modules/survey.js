@@ -19,7 +19,8 @@ const redis = new Redis({
 
 // Redis key prefixes
 const GLOBAL_SURVEY_KEY = 'survey:global';
-const USER_SURVEY_PREFIX = 'survey:user:';
+const USER_HEAT_SURVEY_PREFIX = 'survey:userHeat:';
+const USER_BOM_SURVEY_PREFIX = 'survey:userBom:';
 
 // Handle Redis connection events
 redis.on('error', (error) => {
@@ -40,13 +41,22 @@ async function setGlobalSurveyState(value) {
   await redis.set(GLOBAL_SURVEY_KEY, value.toString());
 }
 
-async function getUserSurveyState(userId) {
-  const value = await redis.get(`${USER_SURVEY_PREFIX}${userId}`);
+async function getUserHeatSurveyState(userId) {
+  const value = await redis.get(`${USER_HEAT_SURVEY_PREFIX}${userId}`);
   return value === 'true';
 }
 
-async function setUserSurveyState(userId, value) {
-  await redis.set(`${USER_SURVEY_PREFIX}${userId}`, value.toString());
+async function setUserHeatSurveyState(userId, value) {
+  await redis.set(`${USER_HEAT_SURVEY_PREFIX}${userId}`, value.toString());
+}
+
+async function getUserBomSurveyState(userId) {
+  const value = await redis.get(`${USER_BOM_SURVEY_PREFIX}${userId}`);
+  return value === 'true';
+}
+
+async function setUserBomSurveyState(userId, value) {
+  await redis.set(`${USER_BOM_SURVEY_PREFIX}${userId}`, value.toString());
 }
 
 // async function resetAllUserSurveys() {
@@ -88,11 +98,11 @@ router.post('/displayBomSurvey', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/displayUserSurvey', authMiddlewareCouchDB, async (req, res) => {
+router.get('/displayUserHeatSurvey', authMiddlewareCouchDB, async (req, res) => {
   const userId = req.authenticatedUser;
 
   try {
-    const displaySurvey = await getUserSurveyState(userId);
+    const displaySurvey = await getUserHeatSurveyState(userId);
     res.json({ displaySurvey });
   } catch (error) {
     console.error('Error getting user survey state:', error);
@@ -100,7 +110,7 @@ router.get('/displayUserSurvey', authMiddlewareCouchDB, async (req, res) => {
   }
 });
 
-router.post('/displayUserSurvey', authMiddlewareCouchDB, async (req, res) => {
+router.post('/displayUserHeatSurvey', authMiddlewareCouchDB, async (req, res) => {
   const userId = req.authenticatedUser;
   const { newValue } = req.body;
 
@@ -110,7 +120,38 @@ router.post('/displayUserSurvey', authMiddlewareCouchDB, async (req, res) => {
   }
 
   try {
-    await setUserSurveyState(userId, newValue);
+    await setUserHeatSurveyState(userId, newValue);
+    console.log('Setting survey display value to:', newValue, 'for user:', userId);
+    res.send(`Survey display value updated to ${newValue} for user ${userId}`);
+  } catch (error) {
+    console.error('Error setting user survey state:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+router.get('/displayUserBomSurvey', authMiddlewareCouchDB, async (req, res) => {
+  const userId = req.authenticatedUser;
+
+  try {
+    const displaySurvey = await getUserBomSurveyState(userId);
+    res.json({ displaySurvey });
+  } catch (error) {
+    console.error('Error getting user survey state:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+router.post('/displayUserBomSurvey', authMiddlewareCouchDB, async (req, res) => {
+  const userId = req.authenticatedUser;
+  const { newValue } = req.body;
+
+  if (typeof newValue !== 'boolean') {
+    console.error('Unable to set user survey value to:', newValue, 'for user:', userId);
+    return res.status(400).send('New value must be a boolean.');
+  }
+
+  try {
+    await setUserBomSurveyState(userId, newValue);
     console.log('Setting survey display value to:', newValue, 'for user:', userId);
     res.send(`Survey display value updated to ${newValue} for user ${userId}`);
   } catch (error) {
@@ -122,10 +163,10 @@ router.post('/displayUserSurvey', authMiddlewareCouchDB, async (req, res) => {
 // Modified schedule job to use Redis
 const scheduleResetJob = () => {
   console.log('Scheduling job to reset survey each day');
-  // Reset every day at 11pm
-  schedule.scheduleJob('0 23 * * *', async function() {
+  // Reset every day at 7pm
+  schedule.scheduleJob('0 19 * * *', async function() {
     try {
-      console.log('Resetting BOM survey value');
+      console.log('Resetting Global BOM survey value');
       await setGlobalSurveyState(false);
       console.log('Successfully reset BOM survey state');
     } catch (error) {
