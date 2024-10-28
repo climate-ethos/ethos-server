@@ -8,7 +8,7 @@ The root path ('/') redirects to couchdb running on port 5984 while the path ('/
 
 ## Sending surveys to clients
 
-Surveys can be sent to clients by running `curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST http://example.org/server/displayBomSurvey` where user and password are the `USERNAME` and `PASSWORD` configured in `.env` and `example.org` is the domain name of the server
+Surveys can be sent to clients by running `curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST https://example.org/server/displayBomSurvey` where user and password are the `USERNAME` and `PASSWORD` configured in `.env` and `example.org` is the domain name of the server
 
 ## Installation & running
 

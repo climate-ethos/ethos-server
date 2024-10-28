@@ -266,7 +266,7 @@ router.post('/sendSMSNotification', authMiddlewareCouchDB, async (req, res) => {
     return res.status(403).send('Identity does not match authenticated user');
   }
 
-  const message = `User ${userId} has recorded a ${severity} severity heat alert in the ${roomName} area`
+  const message = `Griffith Ethos - User ${userId} has recorded a ${severity} severity heat alert in the ${roomName} area`
   try {
     await sendSMS(phoneNumber, message);
     return res.send('Text message notification sent!');
