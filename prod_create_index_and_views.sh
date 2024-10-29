@@ -69,7 +69,7 @@ while IFS=, read -r username password || [ -n "$username" ]; do
     if [ "$username" != "username" ]; then  # Skip header row
 		echo "Creating index for user: $username"
         create_couchdb_index_for_user "$username"
-        echo "Creating views for user: $username"
-        create_couchdb_views_for_user "$username"
+        echo "NOT Creating views for user: $username"
+        # create_couchdb_views_for_user "$username"
     fi
 done < "$CSV_FILE"
