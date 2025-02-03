@@ -2,7 +2,7 @@
 
 This repository stores the setup information needed to run the server for the Ethos project.
 
-## If expired certificate
+## If expired certificate (despite certbot updating)
 
 1. (If running docker rootless) Login to docker-user account with `sudo machinectl shell docker-user@`
 2. Cd into ethos directory
