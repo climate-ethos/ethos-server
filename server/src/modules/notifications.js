@@ -92,9 +92,7 @@ const sendPushNotification = async (identity, message, tag, androidChannelId) =>
     body: message,
     // FCM Options (to specify the notification channel)
     fcm: {
-      notification: {
-        channel_id: androidChannelId
-      }
+      channel_id: androidChannelId
     }
   };
   if (tag === RESEARCH_PARTICIPANT_TAG) {
