@@ -93,6 +93,9 @@ const sendPushNotification = async (identity, message, tag, androidChannelId) =>
     // FCM Options (to specify the notification channel)
     fcm: {
       message: {
+        notification: {
+          body: message
+        },
         android: {
           notification: {
             channel_id: androidChannelId
