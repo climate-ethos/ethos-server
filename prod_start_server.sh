@@ -6,4 +6,4 @@ fi
 
 docker compose --profile prod down
 
-docker compose --profile prod up --build -d
+docker compose -p ethos-server --profile prod up --build -d

@@ -2,7 +2,8 @@
 .env
 
 couchdb/data
-certbot
+certbot/conf
+certbot/www
 
 # Users csv
 users.csv

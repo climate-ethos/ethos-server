@@ -57,23 +57,26 @@ services:
       - server # Ensure server is available for proxying
 
   certbot:
-    image: certbot/certbot:latest
+    build:
+      context: ./certbot
+      dockerfile: Dockerfile
     profiles: [prod]
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
+      - /var/run/docker.sock:/var/run/docker.sock # Mount Docker socket
     entrypoint: |
       sh -c '
         trap exit TERM;
         while :; do
-          echo "Attempting to renew certificates...";
+          echo "[INFO] Attempting Certbot renewal and Nginx reload...";
           certbot renew \
             --webroot -w /var/www/certbot \
             --quiet \
-            --deploy-hook "docker compose exec nginx nginx -s reload";
+            --deploy-hook "docker compose exec ethos-server-nginx-1 nginx -s reload";
           echo "Certbot renewal check complete. Sleeping for 12 hours...";
           sleep 12h & wait $${!};
         done;
       '
-    depends_on: # Ensures nginx is up for --webroot (though nginx might not have certs on first run)
+    depends_on:
       - nginx

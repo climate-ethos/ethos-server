@@ -11,7 +11,7 @@ if [ ! -f .env ]; then
 fi
 
 # Start server/docker
-NODE_ENV=dev docker compose up --build & # non blocking
+NODE_ENV=dev docker compose -p ethos-server up --build & # non blocking
 
 # Setup couchdb
 # Wait for couchdb to start

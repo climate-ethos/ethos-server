@@ -67,7 +67,7 @@ Surveys can be sent to clients by running:
     * Start Nginx temporarily to serve the ACME challenge:
 
         ```bash
-        docker compose --profile prod up -d nginx
+        docker compose -p ethos-server --profile prod up -d nginx
         ```
 
     * Run Certbot to obtain certificates. Replace `your-email@example.com` with your actual email and verify domain names:
@@ -93,8 +93,10 @@ Surveys can be sent to clients by running:
     Alternatively a general command for production:
 
     ```bash
-    docker compose --profile prod up -d
+    docker compose -p ethos-server --profile prod up -d
     ```
+
+    `-p ethos-server` sets a consistent project name which is needed for the certbot entrypoint script to reload nginx
 
 ### Configuring CouchDB users
 
