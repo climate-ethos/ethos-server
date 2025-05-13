@@ -35,19 +35,13 @@ Surveys can be sent to clients by running:
 
 ### One-Time SSL Setup (for Nginx)
 
-1. **Create SSL Common Directory:**
+1. **Generate DH Parameters:** This strengthens SSL. It can take a few minutes.
 
     ```bash
-    mkdir -p ./nginx/ssl_common
+    openssl dhparam -out ./certbot/conf/ssl-dhparams.pem 2048
     ```
 
-2. **Generate DH Parameters:** This strengthens SSL. It can take a few minutes.
-
-    ```bash
-    openssl dhparam -out ./nginx/ssl_common/ssl-dhparams.pem 2048
-    ```
-
-3. **Create SSL Options File (`./nginx/ssl_common/options-ssl-nginx.conf`):**
+2. **Configure SSL Options File (`./nginx/ssl_common/options-ssl-nginx.conf`):**
     Use a strong configuration. You can generate one from the [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/). Select Nginx, your server version, and "Modern" compatibility.
     Example content for `./nginx/ssl_common/options-ssl-nginx.conf`:
 
