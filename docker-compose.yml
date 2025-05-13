@@ -1,5 +1,4 @@
 services:
-
   server:
     restart: unless-stopped
     build:
@@ -10,7 +9,6 @@ services:
       - ./server:/usr/app
       - /usr/app/node_modules
       - ./.env:/usr/app/.env  # Mount .env
-      - ./certbot/conf/:/etc/letsencrypt/:ro # SSL certs for https
     ports:
       - "8080:8080"
     env_file:
@@ -46,19 +44,37 @@ services:
     image: nginx:latest
     profiles: [prod]
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     restart: unless-stopped
     volumes:
       - ./nginx/conf/:/etc/nginx/conf.d/:ro
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/nginx/ssl/:ro
+      # For SSL hardening - create these files locally first
+      - ./nginx/ssl_common/options-ssl-nginx.conf:/etc/nginx/snippets/options-ssl-nginx.conf:ro
+      - ./nginx/ssl_common/ssl-dhparams.pem:/etc/nginx/ssl/ssl-dhparams.pem:ro
+    depends_on:
+      - server # Ensure server is available for proxying
 
   certbot:
     image: certbot/certbot:latest
     profiles: [prod]
-    restart: unless-stopped
     volumes:
       - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/conf/:/etc/letsencrypt/:rw
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; echo \"Sleeping for 12 hours...\"; sleep 12h & wait $${!}; done;'"
+    entrypoint: |
+      sh -c '
+        trap exit TERM;
+        while :; do
+          echo "Attempting to renew certificates...";
+          certbot renew \
+            --webroot -w /var/www/certbot \
+            --quiet \
+            --deploy-hook "docker compose exec nginx nginx -s reload";
+          echo "Certbot renewal check complete. Sleeping for 12 hours...";
+          sleep 12h & wait $${!};
+        done;
+      '
+    depends_on: # Ensures nginx is up for --webroot (though nginx might not have certs on first run)
+      - nginx
