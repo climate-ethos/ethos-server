@@ -11,8 +11,8 @@ The path (`/server/`) redirects to the Node.js instance (internally on HTTP port
 ## Sending surveys to clients
 
 Surveys can be sent to clients by running:
-`curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST https://fish-vital.bnr.la/server/displayBomSurvey`
-(Replace `user:password` with your `USERNAME` and `PASSWORD` from `.env`, and `fish-vital.bnr.la` with your actual domain if different).
+`curl -u user:password -d '{"newValue": true}' -H "Content-Type: application/json" -X POST https://your-domain.com/server/displayBomSurvey`
+(Replace `user:password` with your `USERNAME` and `PASSWORD` from `.env`, and `your-domain.com` with your actual domain if different).
 
 ## Installation & running
 
@@ -62,7 +62,7 @@ Surveys can be sent to clients by running:
 3. Navigate into the cloned directory.
 4. Copy `.env.example` to `.env` (`cp .env.example .env`) and fill out all the fields (`nano .env`).
     * Ensure `COUCHDB_ADMIN_USER`, `COUCHDB_ADMIN_PASSWORD`, `REDIS_PASSWORD`, `USERNAME`, `PASSWORD` etc. are set.
-5. Configure `./nginx/conf/nginx.conf` with your correct domain name (`fish-vital.bnr.la` and `www.fish-vital.bnr.la` should already be set).
+5. Configure `./nginx/conf/nginx.conf` with your correct domain name for `$primary_domain`.
 6. **Initial Certificate Generation (First Time Only):**
     * Start Nginx temporarily to serve the ACME challenge:
 
@@ -70,13 +70,13 @@ Surveys can be sent to clients by running:
         docker compose -p ethos-server --profile prod up -d nginx
         ```
 
-    * Run Certbot to obtain certificates. Replace `your-email@example.com` with your actual email and verify domain names:
+    * Run Certbot to obtain certificates. Replace `your-email@example.com` with your actual email and `your-domain.com` with your domain:
 
         ```bash
         docker compose --profile prod run --rm certbot certonly \
           --webroot \
           --webroot-path /var/www/certbot/ \
-          -d fish-vital.bnr.la -d www.fish-vital.bnr.la \
+          -d your-domain.com -d www.your-domain.com \
           --email your-email@example.com \
           --agree-tos --no-eff-email \
           --force-renewal # Use --force-renewal only if re-running for existing domains and need to force it
