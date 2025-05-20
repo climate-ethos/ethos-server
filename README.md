@@ -1,4 +1,4 @@
-# ethos-server
+# Ethos Server
 
 This repository stores the setup information needed to run the server for the Ethos project.
 The system uses Nginx for SSL termination and as a reverse proxy, with Certbot for automatic SSL certificate renewal.
